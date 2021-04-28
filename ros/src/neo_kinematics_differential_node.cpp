@@ -57,6 +57,8 @@ public:
 		topicSub_ComVel = this->create_subscription<geometry_msgs::msg::Twist>("/cmd_vel", 1, std::bind(&PlatformCtrlNode::receiveCmd, this, _1));
 		topicSub_DriveState = this->create_subscription<sensor_msgs::msg::JointState>("/drives/joint_states", 10, std::bind(&PlatformCtrlNode::receiveOdo, this, _1));
   		odom_broadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+		this->declare_parameter("wheelDiameter");
+		this->declare_parameter("robotWidth");
 
 		this->get_parameter_or("wheelDiameter", wheelDiameter, 0.3);
 		this->get_parameter_or("robotWidth", axisWidth, 0.5);
