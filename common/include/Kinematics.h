@@ -45,8 +45,8 @@
 class Kinematics
 {
 public:
-	virtual void execForwKin(const sensor_msgs::msg::JointState::SharedPtr js, nav_msgs::msg::Odometry odom) = 0;
-	virtual void execInvKin(const geometry_msgs::msg::Twist::SharedPtr Twist, trajectory_msgs::msg::JointTrajectory Jt) = 0;
+	virtual void execForwKin(const sensor_msgs::msg::JointState::SharedPtr js, nav_msgs::msg::Odometry& odom) = 0;
+	virtual void execInvKin(const geometry_msgs::msg::Twist::SharedPtr Twist, trajectory_msgs::msg::JointTrajectory& Jt) = 0;
 
 };
 

@@ -44,7 +44,7 @@ DiffDrive2WKinematics::DiffDrive2WKinematics()
 {
 }
 
-void DiffDrive2WKinematics::execForwKin(const sensor_msgs::msg::JointState::SharedPtr js, nav_msgs::msg::Odometry odom)
+void DiffDrive2WKinematics::execForwKin(const sensor_msgs::msg::JointState::SharedPtr js, nav_msgs::msg::Odometry& odom)
 {
 	// compute current velocities
 	const double vel_x = 0.5 * (js->velocity[0] - js->velocity[1]) * (m_dDiam * 0.5);
@@ -94,7 +94,7 @@ void DiffDrive2WKinematics::execForwKin(const sensor_msgs::msg::JointState::Shar
 	odom = m_curr_odom;
 }
 
-void DiffDrive2WKinematics::execInvKin(const geometry_msgs::msg::Twist::SharedPtr twist, trajectory_msgs::msg::JointTrajectory traj)
+void DiffDrive2WKinematics::execInvKin(const geometry_msgs::msg::Twist::SharedPtr twist, trajectory_msgs::msg::JointTrajectory& traj)
 {
 	traj.joint_names.clear();
 	traj.points.clear();

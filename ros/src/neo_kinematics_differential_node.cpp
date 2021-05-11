@@ -52,6 +52,11 @@ class PlatformCtrlNode: public rclcpp::Node
 public:
 	PlatformCtrlNode(): Node("neo_differential_node")
 	{
+		
+	}
+
+	int init()
+	{
 		topicPub_Odometry = this->create_publisher<nav_msgs::msg::Odometry>("/odom", 1000);
 		topicPub_DriveCommands = this->create_publisher<trajectory_msgs::msg::JointTrajectory>("/drives/joint_trajectory", 1000);
 		topicSub_ComVel = this->create_subscription<geometry_msgs::msg::Twist>("/cmd_vel", 1, std::bind(&PlatformCtrlNode::receiveCmd, this, _1));
@@ -61,21 +66,16 @@ public:
 		this->declare_parameter("robotWidth");
 
 		this->get_parameter_or("wheelDiameter", wheelDiameter, 0.3);
-		this->get_parameter_or("robotWidth", axisWidth, 0.5);
-	}
-
-	int init()
-	{
-		kin = new DiffDrive2WKinematics;
-		kin->setWheelDiameter(wheelDiameter);
-		kin->setAxisLength(axisLength);
+		this->get_parameter_or("robotWidth", axisLength, 0.5);
+		DiffDrive2WKinematics* diffKin = new DiffDrive2WKinematics();
+		diffKin->setWheelDiameter(wheelDiameter);
+		diffKin->setAxisLength(axisLength);
+		kin = diffKin;
 		return 0;
 	}
 
-private:
 	void receiveCmd(const geometry_msgs::msg::Twist::SharedPtr twist)
 	{
-    	std::mutex m_node_mutex;
 		trajectory_msgs::msg::JointTrajectory traj;
 		kin->execInvKin(twist, traj);
 		topicPub_DriveCommands->publish(traj);
@@ -83,7 +83,6 @@ private:
 
 	void receiveOdo(const sensor_msgs::msg::JointState::SharedPtr js)
 	{
-	    std::mutex m_node_mutex;
 
 		nav_msgs::msg::Odometry odom;
 		odom.header.stamp = js->header.stamp;
@@ -110,8 +109,8 @@ private:
 
 private:
   	std::mutex m_node_mutex;
-	DiffDrive2WKinematics* kin = 0;
-	bool sendTransform = false;
+	Kinematics* kin = 0;
+	bool sendTransform = true;
 	
 	rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr topicPub_Odometry;
   	rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr topicPub_DriveCommands;

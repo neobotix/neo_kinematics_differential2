@@ -48,8 +48,8 @@ class DiffDrive2WKinematics : public Kinematics
 public:
 	DiffDrive2WKinematics();
 
-	void execForwKin(const sensor_msgs::msg::JointState::SharedPtr js, nav_msgs::msg::Odometry odom) override;
-	void execInvKin(const geometry_msgs::msg::Twist::SharedPtr twist, trajectory_msgs::msg::JointTrajectory traj) override;
+	void execForwKin(const sensor_msgs::msg::JointState::SharedPtr js, nav_msgs::msg::Odometry& odom) override;
+	void execInvKin(const geometry_msgs::msg::Twist::SharedPtr twist, trajectory_msgs::msg::JointTrajectory& traj) override;
 
 	void setAxisLength(double dLength);
 	void setWheelDiameter(double dDiam);
