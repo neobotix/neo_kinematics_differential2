@@ -83,6 +83,9 @@ void DiffDrive2WKinematics::execForwKin(const sensor_msgs::msg::JointState::Shar
 	// update timestamp and velocities last
 
 	m_curr_odom.header.stamp = js->header.stamp;
+	m_curr_odom.header.frame_id = odom.header.frame_id;
+	m_curr_odom.child_frame_id = odom.child_frame_id;
+
 	m_curr_odom.twist.twist.linear.x = vel_x;
 	m_curr_odom.twist.twist.linear.y = 0;
 	m_curr_odom.twist.twist.linear.z = 0;
