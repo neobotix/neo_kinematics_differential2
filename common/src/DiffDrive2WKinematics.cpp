@@ -48,11 +48,16 @@ void DiffDrive2WKinematics::execForwKin(const sensor_msgs::msg::JointState::Shar
 {
 	// compute current velocities
 	const double vel_x = 0.5 * (js->velocity[0] - js->velocity[1]) * (m_dDiam * 0.5);
+
 	const double yaw_rate = -1 * (js->velocity[0] + js->velocity[1]) * (m_dDiam * 0.5) / m_dAxisLength;
 
 	if(!m_curr_odom.header.stamp.sec == 0)
 	{
-		const double dt = (js->header.stamp.sec - m_curr_odom.header.stamp.sec);
+		const double t_js = (js->header.stamp.sec + (js->header.stamp.nanosec/1e9));
+
+		const double t_odom = ( m_curr_odom.header.stamp.sec + (m_curr_odom.header.stamp.nanosec/1e9));
+
+		const double dt = t_js - t_odom;
 
 		// compute second order midpoint velocities
 		const double vel_x_mid = 0.5 * (vel_x + m_curr_odom.twist.twist.linear.x);
@@ -81,7 +86,7 @@ void DiffDrive2WKinematics::execForwKin(const sensor_msgs::msg::JointState::Shar
 	}
 
 	// update timestamp and velocities last
-
+	
 	m_curr_odom.header.stamp = js->header.stamp;
 	m_curr_odom.header.frame_id = odom.header.frame_id;
 	m_curr_odom.child_frame_id = odom.child_frame_id;

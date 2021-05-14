@@ -85,11 +85,11 @@ public:
 	{
 
 		nav_msgs::msg::Odometry odom;
-		odom.header.stamp = js->header.stamp;
 		odom.header.frame_id = "odom";
 		odom.child_frame_id = "base_link";
 		kin->execForwKin(js, odom);
 		topicPub_Odometry->publish(odom);
+
 
 		//odometry transform:
 		if(sendTransform)
