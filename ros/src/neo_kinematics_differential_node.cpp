@@ -37,7 +37,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
 #include <tf2_ros/transform_broadcaster.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include "tf2_ros/buffer.h"
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry_msgs/msg/twist.hpp>
@@ -50,23 +50,21 @@ using std::placeholders::_1;
 class PlatformCtrlNode: public rclcpp::Node 
 {
 public:
-	PlatformCtrlNode(): Node("neo_differential_node")
-	{
-		
-	}
+	PlatformCtrlNode(): Node("neo_differential_node") {}
 
-	int init()
-	{
+	int init() {
 		topicPub_Odometry = this->create_publisher<nav_msgs::msg::Odometry>("/odom", 1000);
 		topicPub_DriveCommands = this->create_publisher<trajectory_msgs::msg::JointTrajectory>("/drives/joint_trajectory", 1000);
 		topicSub_ComVel = this->create_subscription<geometry_msgs::msg::Twist>("/cmd_vel", 1, std::bind(&PlatformCtrlNode::receiveCmd, this, _1));
 		topicSub_DriveState = this->create_subscription<sensor_msgs::msg::JointState>("/drives/joint_states", 10, std::bind(&PlatformCtrlNode::receiveOdo, this, _1));
-  		odom_broadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
-		this->declare_parameter("wheelDiameter");
-		this->declare_parameter("robotWidth");
+		odom_broadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+		
+		this->declare_parameter<double>("wheelDiameter", 0.3);
+		this->declare_parameter<double>("robotWidth", 0.5);
 
-		this->get_parameter_or("wheelDiameter", wheelDiameter, 0.3);
-		this->get_parameter_or("robotWidth", axisLength, 0.5);
+		this->get_parameter("wheelDiameter", wheelDiameter);
+		this->get_parameter("robotWidth", axisLength);
+	
 		DiffDrive2WKinematics* diffKin = new DiffDrive2WKinematics();
 		diffKin->setWheelDiameter(wheelDiameter);
 		diffKin->setAxisLength(axisLength);
@@ -74,15 +72,13 @@ public:
 		return 0;
 	}
 
-	void receiveCmd(const geometry_msgs::msg::Twist::SharedPtr twist)
-	{
+	void receiveCmd(const geometry_msgs::msg::Twist::SharedPtr twist) {
 		trajectory_msgs::msg::JointTrajectory traj;
 		kin->execInvKin(twist, traj);
 		topicPub_DriveCommands->publish(traj);
 	}
 
-	void receiveOdo(const sensor_msgs::msg::JointState::SharedPtr js)
-	{
+	void receiveOdo(const sensor_msgs::msg::JointState::SharedPtr js) {
 
 		nav_msgs::msg::Odometry odom;
 		odom.header.frame_id = "odom";
@@ -92,8 +88,7 @@ public:
 
 
 		//odometry transform:
-		if(sendTransform)
-		{
+		if(sendTransform) {
 			geometry_msgs::msg::TransformStamped odom_trans;
 			odom_trans.header.stamp = odom.header.stamp;
 			odom_trans.header.frame_id = odom.header.frame_id;
@@ -108,12 +103,12 @@ public:
 
 
 private:
-  	std::mutex m_node_mutex;
+  std::mutex m_node_mutex;
 	Kinematics* kin = 0;
 	bool sendTransform = true;
 	
 	rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr topicPub_Odometry;
-  	rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr topicPub_DriveCommands;
+  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr topicPub_DriveCommands;
 	rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr topicSub_ComVel;
 	rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr topicSub_DriveState;
 	std::shared_ptr<tf2_ros::TransformBroadcaster> odom_broadcaster;
