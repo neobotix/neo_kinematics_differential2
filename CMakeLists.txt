@@ -16,6 +16,7 @@ find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 # ###########
 # ## Build ##
@@ -39,7 +40,8 @@ ament_target_dependencies(neo_differential_node
   geometry_msgs
   std_msgs
   nav_msgs
-  trajectory_msgs)
+  trajectory_msgs
+  tf2_geometry_msgs)
 
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
@@ -48,7 +50,8 @@ ament_target_dependencies(${PROJECT_NAME}
   geometry_msgs
   std_msgs
   nav_msgs
-  trajectory_msgs)
+  trajectory_msgs
+  tf2_geometry_msgs)
 
 target_link_libraries(neo_differential_node ${PROJECT_NAME})
 
