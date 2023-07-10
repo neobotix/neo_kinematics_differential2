@@ -53,10 +53,10 @@ public:
 	PlatformCtrlNode(): Node("neo_differential_node") {}
 
 	int init() {
-		topicPub_Odometry = this->create_publisher<nav_msgs::msg::Odometry>("/odom", 1000);
-		topicPub_DriveCommands = this->create_publisher<trajectory_msgs::msg::JointTrajectory>("/drives/joint_trajectory", 1000);
-		topicSub_ComVel = this->create_subscription<geometry_msgs::msg::Twist>("/cmd_vel", 1, std::bind(&PlatformCtrlNode::receiveCmd, this, _1));
-		topicSub_DriveState = this->create_subscription<sensor_msgs::msg::JointState>("/drives/joint_states", 10, std::bind(&PlatformCtrlNode::receiveOdo, this, _1));
+		topicPub_Odometry = this->create_publisher<nav_msgs::msg::Odometry>("odom", 1000);
+		topicPub_DriveCommands = this->create_publisher<trajectory_msgs::msg::JointTrajectory>("drives/joint_trajectory", 1000);
+		topicSub_ComVel = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 1, std::bind(&PlatformCtrlNode::receiveCmd, this, _1));
+		topicSub_DriveState = this->create_subscription<sensor_msgs::msg::JointState>("drives/joint_states", 10, std::bind(&PlatformCtrlNode::receiveOdo, this, _1));
 		odom_broadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
 		
 		this->declare_parameter<double>("wheelDiameter", 0.3);
@@ -89,26 +89,37 @@ public:
 
 		//odometry transform:
 		if(sendTransform) {
+			std::string robot_namespace(this->get_namespace());
 			geometry_msgs::msg::TransformStamped odom_trans;
 			odom_trans.header.stamp = odom.header.stamp;
-			odom_trans.header.frame_id = odom.header.frame_id;
-			odom_trans.child_frame_id = odom.child_frame_id;
+			if(robot_namespace != "/") {
+				robot_namespace.erase(
+					std::remove(robot_namespace.begin(),
+					robot_namespace.end(),
+					'/'), robot_namespace.end());
+				odom_trans.header.frame_id = robot_namespace + "odom";
+				odom_trans.child_frame_id = robot_namespace + "base_link";
+			} else {
+				odom_trans.header.frame_id = "odom";
+				odom_trans.child_frame_id = "base_link";
+			}
+
 			odom_trans.transform.translation.x = odom.pose.pose.position.x;
 			odom_trans.transform.translation.y = odom.pose.pose.position.y;
 			odom_trans.transform.translation.z = odom.pose.pose.position.z;
 			odom_trans.transform.rotation = odom.pose.pose.orientation;
 			odom_broadcaster->sendTransform(odom_trans);
 		}
- 	}
+	}
 
 
 private:
-  std::mutex m_node_mutex;
+	std::mutex m_node_mutex;
 	Kinematics* kin = 0;
 	bool sendTransform = true;
 	
 	rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr topicPub_Odometry;
-  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr topicPub_DriveCommands;
+	rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr topicPub_DriveCommands;
 	rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr topicSub_ComVel;
 	rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr topicSub_DriveState;
 	std::shared_ptr<tf2_ros::TransformBroadcaster> odom_broadcaster;
@@ -121,12 +132,12 @@ private:
 
 int main (int argc, char** argv)
 {
-  rclcpp::init(argc, argv);
-  auto nh = std::make_shared<PlatformCtrlNode>();
-  if(nh->init() != 0) {
-    	RCLCPP_ERROR_STREAM(nh->get_logger(),"neo_kinematics_differential_node: init failed!");
-    }
-  rclcpp::spin(nh);
+	rclcpp::init(argc, argv);
+	auto nh = std::make_shared<PlatformCtrlNode>();
+	if(nh->init() != 0) {
+			RCLCPP_ERROR_STREAM(nh->get_logger(),"neo_kinematics_differential_node: init failed!");
+		}
+	rclcpp::spin(nh);
 	
-  return 0;
+	return 0;
 }
