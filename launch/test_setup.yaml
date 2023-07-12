@@ -2,7 +2,8 @@ neo_differential_node:
   ros__parameters:
   
     #robot's geometric parameters:
-    kinematics: DiffDrive2W
     wheelDiameter: 0.15
     robotLength: 0.5
     robotWidth: 0.54
+    odomFrame: "odom"
+    robotBaseFrame: "base_footprint"
