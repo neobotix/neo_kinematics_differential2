@@ -61,9 +61,13 @@ public:
 		
 		this->declare_parameter<double>("wheelDiameter", 0.3);
 		this->declare_parameter<double>("robotWidth", 0.5);
+		this->declare_parameter<std::string>("odomFrame", "odom");
+		this->declare_parameter<std::string>("robotBaseFrame", "base_footprint");
 
 		this->get_parameter("wheelDiameter", wheelDiameter);
 		this->get_parameter("robotWidth", axisLength);
+		this->get_parameter("odomFrame", odomFrame);
+		this->get_parameter("robotBaseFrame", robotBaseFrame);
 	
 		DiffDrive2WKinematics* diffKin = new DiffDrive2WKinematics();
 		diffKin->setWheelDiameter(wheelDiameter);
@@ -97,11 +101,11 @@ public:
 					std::remove(robot_namespace.begin(),
 					robot_namespace.end(),
 					'/'), robot_namespace.end());
-				odom_trans.header.frame_id = robot_namespace + "odom";
-				odom_trans.child_frame_id = robot_namespace + "base_link";
+				odom_trans.header.frame_id = robot_namespace + odomFrame;
+				odom_trans.child_frame_id = robot_namespace + robotBaseFrame;
 			} else {
-				odom_trans.header.frame_id = "odom";
-				odom_trans.child_frame_id = "base_link";
+				odom_trans.header.frame_id = odomFrame;
+				odom_trans.child_frame_id = robotBaseFrame;
 			}
 
 			odom_trans.transform.translation.x = odom.pose.pose.position.x;
@@ -128,6 +132,8 @@ private:
 	double axisWidth = 0.0;
 	double axisLength = 0.0;
 
+	std::string odomFrame;
+	std::string robotBaseFrame;
 };
 
 int main (int argc, char** argv)
