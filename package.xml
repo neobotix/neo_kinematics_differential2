@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>neo_kinematics_differential</name>
+    <name>neo_kinematics_differential2</name>
     <version>1.0.0</version>
     <description>transformation node for neobotix robots with differential drive ROS 2</description>
     <author>Jan-Niklas Nieland</author>
