@@ -112,11 +112,11 @@ void DiffDrive2WKinematics::execInvKin(const geometry_msgs::msg::Twist::SharedPt
 	point.velocities.resize(4);
 
 	// w1:
-	traj.joint_names.push_back("wheel_front_left_base_link");
+	traj.joint_names.push_back("wheel_left_joint");
 	point.velocities[0] = (twist->linear.x - (twist->angular.z * m_dAxisLength) / 2) * 2 / m_dDiam;
 
 	// w2:
-	traj.joint_names.push_back("wheel_front_right_base_link");
+	traj.joint_names.push_back("wheel_right_joint");
 	point.velocities[1] = -(twist->linear.x + (twist->angular.z * m_dAxisLength) / 2) * 2 / m_dDiam;
 
 	traj.points.push_back(point);
