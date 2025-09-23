@@ -28,32 +28,36 @@ ament_export_include_directories(common/include)
 
 add_library(${PROJECT_NAME} common/src/DiffDrive2WKinematics.cpp)
 
-
 ament_export_libraries(${PROJECT_NAME})
 
 add_executable(neo_differential_node ros/src/neo_kinematics_differential_node.cpp)
 
-ament_target_dependencies(neo_differential_node
-  rclcpp
-  tf2_ros
-  sensor_msgs
-  geometry_msgs
-  std_msgs
-  nav_msgs
-  trajectory_msgs
-  tf2_geometry_msgs)
+target_link_libraries(neo_differential_node PUBLIC
+  ${geometry_msgs_TARGETS}
+  ${nav_msgs_TARGETS}
+  ${sensor_msgs_TARGETS}
+  ${std_msgs_TARGETS}
+  ${trajectory_msgs_TARGETS}
+  rclcpp::rclcpp
+  sensor_msgs::sensor_msgs_library
+  tf2_geometry_msgs::tf2_geometry_msgs
+  tf2_ros::static_transform_broadcaster_node
+  tf2_ros::tf2_ros
+  ${PROJECT_NAME}
+)
 
-ament_target_dependencies(${PROJECT_NAME}
-  rclcpp
-  tf2_ros
-  sensor_msgs
-  geometry_msgs
-  std_msgs
-  nav_msgs
-  trajectory_msgs
-  tf2_geometry_msgs)
-
-target_link_libraries(neo_differential_node ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  ${geometry_msgs_TARGETS}
+  ${nav_msgs_TARGETS}
+  ${sensor_msgs_TARGETS}
+  ${std_msgs_TARGETS}
+  ${trajectory_msgs_TARGETS}
+  rclcpp::rclcpp
+  sensor_msgs::sensor_msgs_library
+  tf2_geometry_msgs::tf2_geometry_msgs
+  tf2_ros::static_transform_broadcaster_node
+  tf2_ros::tf2_ros
+)
 
 install(DIRECTORY common/include/
    DESTINATION common/include/
